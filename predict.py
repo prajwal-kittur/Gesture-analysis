@@ -4,6 +4,11 @@ import operator
 import cv2
 import sys, os
 
+import pymysql
+
+conn = pymysql.connect(host="localhost", user="root", passwd="", db="test3")
+mycursor = conn.cursor()
+
 # Loading the model
 json_file = open("model-bw.json", "r")
 model_json = json_file.read()
@@ -49,6 +54,7 @@ while True:
 
     # Sorting based on top prediction
     prediction = sorted(prediction.items(), key=operator.itemgetter(1), reverse=True)
+    status = prediction[0][0]
     # Displaying the predictions
 
     cv2.putText(frame, "Stock Managment ", (10, 20), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 255), 1)
@@ -62,12 +68,21 @@ while True:
     cv2.imshow("Frame", frame)
 
     interrupt = cv2.waitKey(10)
-    if interrupt & 0xFF == 27: # esc key
+    if interrupt & 0xFF == 27:  # esc key
         break
-   ## if interrupt & 0xFF == ord('1'):
-        ## cv2.imwrite(directory + 'thumbs_up/' + str(count['thumbs_up']) + '.jpg', roi)
-    ##if interrupt & 0xFF == ord('2'):
-        ## cv2.imwrite(directory + 'thumbs_down/' + str(count['thumbs_down']) + '.jpg', roi)
+    if interrupt & 0xFF == ord('1'):
+        mycursor.execute("INSERT INTO stock(id,state) VALUES (1, %s);", status)
+        conn.commit()
+    if interrupt & 0xFF == ord('2'):
+        mycursor.execute("INSERT INTO stock(id,state) VALUES (2, %s);", status)
+        conn.commit()
+    if interrupt & 0xFF == ord('3'):
+        mycursor.execute("INSERT INTO stock(id,state) VALUES (3, %s);", status)
+        conn.commit()
+    if interrupt & 0xFF == ord('4'):
+        mycursor.execute("INSERT INTO stock(id,state) VALUES (4, %s);", status)
+        conn.commit()
 
+conn.close()
 cap.release()
 cv2.destroyAllWindows()
